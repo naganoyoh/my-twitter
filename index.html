@@ -67,7 +67,9 @@ main{max-width:600px; margin:0 auto}
 #stockBody h3{font-size:14px; margin:14px 0 4px}
 .postblock{position:relative; background:#f5f8fa; border:1px solid var(--border);
   border-radius:12px; padding:12px; padding-right:64px; margin:6px 0;
-  white-space:pre-wrap; font-size:14px}
+  white-space:pre-wrap; font-size:14px; overflow-wrap:anywhere}
+.mediaLabel{display:inline-block; font-size:11px; font-weight:700; color:var(--accent);
+  border:1px solid var(--accent); border-radius:999px; padding:1px 10px; margin-top:10px}
 
 /* タイムライン */
 .tweet{padding:12px 16px; background:var(--card); border-bottom:1px solid var(--border);
@@ -330,7 +332,9 @@ function renderStock(md){
     }else{
       p.split("\n").forEach(line=>{
         const h=line.match(/^#{2,3}\s+(.+)/);
-        if(h){const e=document.createElement("h3");e.textContent=h[1];box.appendChild(e);}
+        if(h){const e=document.createElement("h3");e.textContent=h[1];box.appendChild(e);return;}
+        const c=line.match(/^- \[.\]\s+(.+)/);
+        if(c){const e=document.createElement("span");e.className="mediaLabel";e.textContent=c[1];box.appendChild(e);}
       });
     }
   });
