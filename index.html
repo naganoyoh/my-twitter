@@ -4,14 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="my twitter">
+<meta name="theme-color" content="#1da1f2">
 <title>my twitter</title>
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%231a1a2e'/%3E%3Ctext x='90' y='118' font-size='90' text-anchor='middle'%3E🕊️%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%231da1f2'/%3E%3Ctext x='90' y='122' font-size='96' text-anchor='middle'%3E🕊️%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231da1f2'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle'%3E🕊️%3C/text%3E%3C/svg%3E">
 <style>
 :root{
-  --bg:#0f1419; --card:#16202a; --border:#2f3b47; --text:#e7e9ea;
-  --sub:#8b98a5; --accent:#1d9bf0; --accent2:#00ba7c; --danger:#f4212e;
+  --bg:#f5f8fa; --card:#ffffff; --border:#e1e8ed; --text:#14171a;
+  --sub:#657786; --accent:#1da1f2; --accent-dark:#1a91da;
+  --accent2:#17bf63; --danger:#e0245e;
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
 body{
@@ -20,70 +23,84 @@ body{
   font-size:15px; line-height:1.6;
   padding-bottom:env(safe-area-inset-bottom);
 }
+a{color:var(--accent); text-decoration:none; word-break:break-all}
+a:active{text-decoration:underline}
 header{
-  position:sticky; top:0; z-index:10; background:rgba(15,20,25,.92);
+  position:sticky; top:0; z-index:10; background:rgba(255,255,255,.94);
   backdrop-filter:blur(8px); border-bottom:1px solid var(--border);
   padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
   display:flex; align-items:center; justify-content:space-between;
 }
-header h1{font-size:17px; margin:0; font-weight:700}
+header h1{font-size:17px; margin:0; font-weight:800; color:var(--accent)}
 header .sub{font-size:11px; color:var(--sub); font-weight:400}
 #gearBtn{background:none; border:none; font-size:20px; cursor:pointer; padding:4px}
 main{max-width:600px; margin:0 auto}
 
 /* 投稿ボックス */
-#composer{padding:12px 16px; border-bottom:1px solid var(--border)}
+#composer{padding:12px 16px; background:var(--card); border-bottom:1px solid var(--border)}
 #composer textarea{
-  width:100%; min-height:72px; background:none; border:none; resize:none;
+  width:100%; min-height:76px; background:none; border:none; resize:none;
   color:var(--text); font-size:17px; font-family:inherit; line-height:1.5; outline:none;
 }
-#composer textarea::placeholder{color:var(--sub)}
-#composerBar{display:flex; align-items:center; justify-content:flex-end; gap:12px}
+#composer textarea::placeholder{color:#aab8c2}
+#composerBar{display:flex; align-items:center; justify-content:flex-end; gap:12px;
+  border-top:1px solid var(--border); padding-top:10px}
 #charCount{font-size:12px; color:var(--sub)}
 #postBtn{
   background:var(--accent); color:#fff; border:none; border-radius:999px;
-  padding:8px 20px; font-size:15px; font-weight:700; cursor:pointer;
+  padding:8px 22px; font-size:15px; font-weight:700; cursor:pointer;
+  box-shadow:0 1px 3px rgba(29,161,242,.35);
 }
-#postBtn:disabled{opacity:.4}
-#draftNote{font-size:12px; color:#f7b731; padding:0 16px 8px; display:none}
+#postBtn:disabled{opacity:.45; box-shadow:none}
+#draftNote{font-size:12px; color:#b7791f; background:#fffbea;
+  padding:8px 16px; display:none; border-bottom:1px solid var(--border)}
 
-/* 今朝のストック */
-#stockBox{border-bottom:8px solid var(--border)}
+/* 秘書からの納品 */
+#stockBox{background:var(--card); border-bottom:8px solid var(--bg);
+  box-shadow:0 1px 2px rgba(0,0,0,.04)}
 #stockHead{
-  padding:12px 16px 4px; font-size:13px; color:var(--accent2); font-weight:700;
+  padding:12px 16px; font-size:13px; color:var(--accent2); font-weight:700;
   display:flex; justify-content:space-between; align-items:center; cursor:pointer;
 }
-#stockHead .chev{color:var(--sub); font-size:12px}
+#stockHead .chev{color:var(--sub); font-size:12px; font-weight:400}
 #stockBody{padding:0 16px 12px; display:none}
 #stockBody.open{display:block}
-#stockBody h3{font-size:14px; margin:14px 0 4px; color:var(--text)}
-.postblock{position:relative; background:#0a0e12; border:1px solid var(--border);
-  border-radius:10px; padding:12px; margin:6px 0; white-space:pre-wrap; font-size:14px}
-.copyBtn{
-  position:absolute; top:6px; right:6px; background:var(--card); color:var(--sub);
-  border:1px solid var(--border); border-radius:6px; font-size:11px; padding:3px 8px; cursor:pointer;
-}
-.copyBtn.done{color:var(--accent2); border-color:var(--accent2)}
+#stockBody h3{font-size:14px; margin:14px 0 4px}
+.postblock{position:relative; background:#f5f8fa; border:1px solid var(--border);
+  border-radius:12px; padding:12px; padding-right:64px; margin:6px 0;
+  white-space:pre-wrap; font-size:14px}
 
 /* タイムライン */
-.tweet{padding:12px 16px; border-bottom:1px solid var(--border); display:flex; gap:10px}
-.tweet .avatar{font-size:22px; line-height:1.2}
+.tweet{padding:12px 16px; background:var(--card); border-bottom:1px solid var(--border);
+  display:flex; gap:10px}
+.tweet .avatar{
+  width:40px; height:40px; border-radius:50%; background:var(--accent);
+  color:#fff; font-size:20px; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
 .tweet .body{flex:1; min-width:0}
-.tweet .meta{font-size:13px; color:var(--sub); margin-bottom:2px}
+.tweet .meta{font-size:13px; color:var(--sub); margin-bottom:2px;
+  display:flex; align-items:center; justify-content:space-between}
+.tweet .meta .who b{color:var(--text); font-weight:700; font-size:14px}
 .tweet .text{white-space:pre-wrap; word-break:break-word}
-#loadMore{display:block; width:100%; padding:14px; background:none; border:none;
-  color:var(--accent); font-size:14px; cursor:pointer}
-.note{padding:24px 16px; color:var(--sub); text-align:center; font-size:13px}
+.copyBtn{
+  background:none; color:var(--sub); border:1px solid var(--border);
+  border-radius:999px; font-size:11px; padding:3px 10px; cursor:pointer; flex-shrink:0;
+}
+.copyBtn.done{color:var(--accent2); border-color:var(--accent2)}
+.postblock .copyBtn{position:absolute; top:8px; right:8px; background:var(--card)}
+#loadMore{display:block; width:100%; padding:14px; background:var(--card); border:none;
+  border-top:1px solid var(--border); color:var(--accent); font-size:14px; cursor:pointer}
+.note{padding:28px 16px; color:var(--sub); text-align:center; font-size:13px}
 
 /* 設定・トースト */
-#settings{
-  position:fixed; inset:0; background:rgba(0,0,0,.6); display:none;
-  align-items:flex-end; z-index:20;
-}
+#settings{position:fixed; inset:0; background:rgba(0,0,0,.35); display:none;
+  align-items:flex-end; z-index:20}
 #settings.open{display:flex}
 #settingsCard{
   background:var(--card); width:100%; max-width:600px; margin:0 auto;
   border-radius:16px 16px 0 0; padding:20px 16px calc(20px + env(safe-area-inset-bottom));
+  box-shadow:0 -4px 24px rgba(0,0,0,.12);
 }
 #settingsCard h2{font-size:16px; margin:0 0 12px}
 #settingsCard label{font-size:13px; color:var(--sub); display:block; margin:12px 0 4px}
@@ -92,26 +109,24 @@ main{max-width:600px; margin:0 auto}
   color:var(--text); padding:10px; font-size:14px;
 }
 #settingsCard .row{display:flex; gap:10px; margin-top:16px}
-#settingsCard button{
+#settingsCard .row button{
   flex:1; padding:12px; border-radius:999px; border:none; font-size:15px;
   font-weight:700; cursor:pointer;
 }
 #saveBtn{background:var(--accent); color:#fff}
-#closeBtn{background:var(--border); color:var(--text)}
+#closeBtn{background:var(--bg); color:var(--text); border:1px solid var(--border)!important}
 #toast{
   position:fixed; bottom:calc(30px + env(safe-area-inset-bottom)); left:50%;
   transform:translateX(-50%); background:var(--accent); color:#fff;
   padding:10px 18px; border-radius:999px; font-size:14px; display:none; z-index:30;
-  max-width:88%;
+  max-width:88%; box-shadow:0 2px 10px rgba(0,0,0,.18);
 }
 #toast.err{background:var(--danger)}
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <h1>my twitter <span class="sub">読者：秘書1名</span></h1>
-  </div>
+  <div><h1>my twitter</h1><span class="sub">読者：秘書1名</span></div>
   <button id="gearBtn" title="設定">⚙️</button>
 </header>
 <main>
@@ -122,10 +137,10 @@ main{max-width:600px; margin:0 auto}
     <div id="stockBody"></div>
   </div>
   <div id="composer">
-    <textarea id="text" placeholder="いまどうしてる？（明日のネタになります）"></textarea>
+    <textarea id="text" placeholder="いまなにしてる？"></textarea>
     <div id="composerBar">
       <span id="charCount"></span>
-      <button id="postBtn" disabled>投稿する</button>
+      <button id="postBtn" disabled>ツイートする</button>
     </div>
   </div>
   <div id="draftNote"></div>
@@ -138,7 +153,7 @@ main{max-width:600px; margin:0 auto}
     <label>GitHubの合鍵（github_pat_… で始まる文字列）</label>
     <input id="tokenInput" type="password" placeholder="github_pat_XXXX…" autocomplete="off">
     <p style="font-size:12px;color:var(--sub);margin:8px 0 0">
-      合鍵はこのiPhoneの中にだけ保存されます。どこにも送信されません（GitHub本体を除く）。
+      合鍵はこの端末の中にだけ保存されます。送信先はGitHubのみです。
     </p>
     <div class="row">
       <button id="closeBtn">とじる</button>
@@ -167,13 +182,26 @@ function toast(msg,err){
   clearTimeout(t._h); t._h=setTimeout(()=>t.style.display="none",3000);
 }
 function jstNow(){
-  const p=new Intl.DateTimeFormat("sv-SE",{timeZone:"Asia/Tokyo",
+  return new Intl.DateTimeFormat("sv-SE",{timeZone:"Asia/Tokyo",
     year:"numeric",month:"2-digit",day:"2-digit",
-    hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false})
-    .format(new Date()); // "2026-08-07 21:35:12"
-  return p;
+    hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(new Date());
 }
 function b64utf8(s){return btoa(String.fromCharCode(...new TextEncoder().encode(s)));}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function linkify(s){
+  return esc(s).replace(/https?:\/\/[^\s<>"）」]+/g,
+    u=>`<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
+}
+function copyBtn(getText){
+  const b=document.createElement("button"); b.className="copyBtn"; b.textContent="コピー";
+  b.onclick=async ev=>{ev.stopPropagation();
+    try{ await navigator.clipboard.writeText(getText()); }
+    catch(e){ toast("コピーできませんでした",1); return; }
+    b.textContent="✓ コピー済"; b.classList.add("done");
+    setTimeout(()=>{b.textContent="コピー"; b.classList.remove("done")},2000);
+  };
+  return b;
+}
 
 /* ---------- 設定 ---------- */
 $("gearBtn").onclick=()=>{ $("tokenInput").value=token; $("settings").classList.add("open"); };
@@ -185,7 +213,7 @@ $("saveBtn").onclick=()=>{
   toast("保存しました"); init();
 };
 
-/* ---------- 投稿 ---------- */
+/* ---------- 投稿（月別フォルダに保存） ---------- */
 const ta=$("text");
 ta.addEventListener("input",()=>{
   const n=ta.value.trim().length;
@@ -197,35 +225,35 @@ async function post(){
   const body=ta.value.trim(); if(!body) return;
   if(!token){ toast("先に⚙️から合鍵を保存してください",1); return; }
   $("postBtn").disabled=true; $("postBtn").textContent="送信中…";
-  const now=jstNow();                       // 2026-08-07 21:35:12
-  const stamp=now.replace(/[-: ]/g,"").slice(0,14); // 20260807213512
-  const path=`${MEMO_DIR}/${now.slice(0,10)}_${stamp.slice(8)}.md`;
+  const now=jstNow();                              // 2026-08-08 01:17:41
+  const ym=now.slice(0,7);                         // 2026-08
+  const fname=now.slice(0,10)+"_"+now.slice(11).replace(/:/g,"")+".md";
   const content=`---\ntags: [ネタメモ]\n投稿日時: ${now} (JST)\n経路: my-twitter\n---\n\n${body}\n`;
   try{
-    const r=await fetch(API+encodeURIComponent(MEMO_DIR)+"/"+encodeURIComponent(path.split("/")[1]),{
-      method:"PUT",headers:headers(),
-      body:JSON.stringify({message:"ネタメモ投稿（my-twitter）",branch:BRANCH,content:b64utf8(content)})
-    });
+    const url=API+encodeURIComponent(MEMO_DIR)+"/"+encodeURIComponent(ym)+"/"+encodeURIComponent(fname);
+    const r=await fetch(url,{method:"PUT",headers:headers(),
+      body:JSON.stringify({message:"ネタメモ投稿（my-twitter）",branch:BRANCH,content:b64utf8(content)})});
     if(!r.ok) throw new Error("HTTP "+r.status);
     ta.value=""; ta.dispatchEvent(new Event("input"));
     localStorage.removeItem("mytw_draft"); $("draftNote").style.display="none";
     toast("投稿しました 🕊️ 明日の朝、ネタになります");
-    prependTweet({name:path,when:now.slice(5,16),text:body});
+    prependTweet({when:now.slice(5,16),text:body});
   }catch(e){
     localStorage.setItem("mytw_draft",body);
-    $("draftNote").textContent="⚠️ 送れなかったので下書き保存しました（"+e.message+"）。電波のあるところでもう一度どうぞ。";
+    $("draftNote").textContent="⚠️ 送れなかったので下書き保存しました（"+e.message+"）。あとでもう一度どうぞ。";
     $("draftNote").style.display="block";
     toast("送信に失敗しました。下書きは残っています",1);
   }
-  $("postBtn").textContent="投稿する"; $("postBtn").disabled=!ta.value.trim();
+  $("postBtn").textContent="ツイートする"; $("postBtn").disabled=!ta.value.trim();
 }
 
 /* ---------- タイムライン ---------- */
 function tweetEl(t){
   const d=document.createElement("div"); d.className="tweet";
   d.innerHTML=`<div class="avatar">💭</div><div class="body">
-    <div class="meta">${t.when}</div><div class="text"></div></div>`;
-  d.querySelector(".text").textContent=t.text;
+    <div class="meta"><span class="who"><b>ヨウ</b> · ${esc(t.when)}</span></div>
+    <div class="text">${linkify(t.text)}</div></div>`;
+  d.querySelector(".meta").appendChild(copyBtn(()=>t.text));
   return d;
 }
 function prependTweet(t){
@@ -239,15 +267,24 @@ function parseMemo(name,raw){
   if(m){ text=raw.slice(m[0].length);
     const w=m[1].match(/投稿日時:\s*(.+?)(\s*\(JST\))?$/m); if(w) when=w[1].slice(5,16);
   }
-  return {name,when,text:text.trim()};
+  return {when,text:text.trim()};
+}
+async function ghList(path){
+  const r=await fetch(API+path.split("/").map(encodeURIComponent).join("/")+"?ref="+BRANCH,{headers:headers()});
+  if(r.status===404) return [];
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return r.json();
 }
 async function loadList(){
-  const r=await fetch(API+encodeURIComponent(MEMO_DIR)+"?ref="+BRANCH,{headers:headers()});
-  if(r.status===404) return [];       // フォルダがまだ無い
-  if(!r.ok) throw new Error("HTTP "+r.status);
-  const arr=await r.json();
-  return arr.filter(f=>f.type==="file"&&f.name.endsWith(".md"))
-            .sort((a,b)=>b.name.localeCompare(a.name));
+  const root=await ghList(MEMO_DIR);
+  let files=root.filter(f=>f.type==="file"&&f.name.endsWith(".md"));
+  const months=root.filter(f=>f.type==="dir"&&/^\d{4}-\d{2}$/.test(f.name))
+                   .sort((a,b)=>b.name.localeCompare(a.name));
+  for(const mdir of months){
+    const inside=await ghList(MEMO_DIR+"/"+mdir.name);
+    files=files.concat(inside.filter(f=>f.type==="file"&&f.name.endsWith(".md")));
+  }
+  return files.sort((a,b)=>b.name.localeCompare(a.name));
 }
 async function showMore(){
   const slice=fileList.slice(shown,shown+PAGE); shown+=slice.length;
@@ -256,7 +293,9 @@ async function showMore(){
     try{
       const r=await fetch(f.url,{headers:headers(true)});
       const raw=await r.text();
-      tl.insertBefore(tweetEl(parseMemo(f.name,raw)),$("loadMore"));
+      const el=tweetEl(parseMemo(f.name,raw));
+      const more=$("loadMore");
+      more? tl.insertBefore(el,more) : tl.appendChild(el);
     }catch(e){/* 1件失敗しても続ける */}
   }
   if(shown>=fileList.length&&$("loadMore")) $("loadMore").remove();
@@ -273,7 +312,7 @@ async function loadTimeline(){
     more.textContent="さらに表示"; more.onclick=showMore; tl.appendChild(more);
     await showMore();
   }catch(e){
-    tl.innerHTML=`<div class="note">読み込めませんでした（${e.message}）。<br>⚙️の合鍵を確認してください。</div>`;
+    tl.innerHTML=`<div class="note">読み込めませんでした（${esc(e.message)}）。<br>⚙️の合鍵を確認してください。</div>`;
   }
 }
 
@@ -285,18 +324,13 @@ $("stockHead").onclick=()=>{
 };
 function renderStock(md){
   const box=$("stockBody"); box.innerHTML="";
-  const parts=md.split(/```/);
-  parts.forEach((p,i)=>{
-    if(i%2===1){ // コードブロック＝ポスト本文
+  md.split(/```/).forEach((p,i)=>{
+    if(i%2===1){
+      const body=p.replace(/^\n|\n$/g,"");
       const d=document.createElement("div"); d.className="postblock";
-      d.textContent=p.replace(/^\n|\n$/g,"");
-      const b=document.createElement("button"); b.className="copyBtn"; b.textContent="コピー";
-      b.onclick=async ev=>{ev.stopPropagation();
-        await navigator.clipboard.writeText(d.textContent);
-        b.textContent="✓ コピーした"; b.classList.add("done");
-        setTimeout(()=>{b.textContent="コピー";b.classList.remove("done")},2000);
-      };
-      d.appendChild(b); box.appendChild(d);
+      d.innerHTML=linkify(body);
+      d.appendChild(copyBtn(()=>body));
+      box.appendChild(d);
     }else{
       p.split("\n").forEach(line=>{
         const h=line.match(/^#{2,3}\s+(.+)/);
@@ -307,10 +341,7 @@ function renderStock(md){
 }
 async function loadStock(){
   try{
-    const r=await fetch(API+encodeURIComponent(STOCK_DIR)+"?ref="+BRANCH,{headers:headers()});
-    if(r.status===404){ $("stockTitle").textContent="📮 秘書からの納品（まだありません）"; return; }
-    if(!r.ok) return;
-    const arr=(await r.json()).filter(f=>f.type==="file"&&f.name.endsWith(".md"))
+    const arr=(await ghList(STOCK_DIR)).filter(f=>f.type==="file"&&f.name.endsWith(".md"))
       .sort((a,b)=>b.name.localeCompare(a.name));
     if(!arr.length){ $("stockTitle").textContent="📮 秘書からの納品（まだありません）"; return; }
     const latest=arr[0];
