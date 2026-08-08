@@ -85,6 +85,10 @@ main{max-width:600px; margin:0 auto}
   border-radius:999px; font-size:11px; padding:3px 10px; cursor:pointer; flex-shrink:0;
 }
 .copyBtn.done{color:var(--accent); border-color:var(--accent)}
+.tweet .acts{display:flex; gap:6px; align-items:center}
+.starBtn{background:none; border:none; font-size:17px; color:#ccd6dd; cursor:pointer;
+  padding:0 2px; line-height:1}
+.starBtn.faved{color:#ffad1f}
 .postblock .copyBtn{position:absolute; top:8px; right:8px; background:var(--card)}
 #loadMore{display:block; width:100%; padding:14px; background:var(--card); border:none;
   border-top:1px solid var(--border); color:var(--accent); font-size:14px; cursor:pointer}
@@ -156,7 +160,7 @@ main{max-width:600px; margin:0 auto}
       <button id="closeBtn">とじる</button>
       <button id="saveBtn">保存する</button>
     </div>
-    <p style="font-size:11px;color:var(--sub);text-align:center;margin:14px 0 0">バージョン 2026-08-08 d（鳥: 中央+3px）</p>
+    <p style="font-size:11px;color:var(--sub);text-align:center;margin:14px 0 0">バージョン 2026-08-08 e（ファボ機能）</p>
   </div>
 </div>
 <div id="toast"></div>
@@ -233,10 +237,11 @@ async function post(){
     const r=await fetch(url,{method:"PUT",headers:headers(),
       body:JSON.stringify({message:"ネタメモ投稿（my-twitter）",branch:BRANCH,content:b64utf8(content)})});
     if(!r.ok) throw new Error("HTTP "+r.status);
+    const j=await r.json();
     ta.value=""; ta.dispatchEvent(new Event("input"));
     localStorage.removeItem("mytw_draft"); $("draftNote").style.display="none";
-    toast("投稿しました 🕊️ 明日の朝、ネタになります");
-    prependTweet({when:now.slice(5,16),text:body});
+    toast("投稿しました 🕊️ 次の定時便でネタになります");
+    prependTweet({when:now.slice(5,16),text:body,path:j.content.path,sha:j.content.sha,raw:content,faved:false});
   }catch(e){
     localStorage.setItem("mytw_draft",body);
     $("draftNote").textContent="⚠️ 送れなかったので下書き保存しました（"+e.message+"）。あとでもう一度どうぞ。";
@@ -250,10 +255,44 @@ async function post(){
 function tweetEl(t){
   const d=document.createElement("div"); d.className="tweet";
   d.innerHTML=`<img class="avatar" src="${AVATAR}" alt=""><div class="body">
-    <div class="meta"><span class="who"><b>ヨウ</b> · ${esc(t.when)}</span></div>
+    <div class="meta"><span class="who"><b>ヨウ</b> · ${esc(t.when)}</span><span class="acts"></span></div>
     <div class="text">${linkify(t.text)}</div></div>`;
-  d.querySelector(".meta").appendChild(copyBtn(()=>t.text));
+  const acts=d.querySelector(".acts");
+  if(t.path){
+    const s=document.createElement("button");
+    s.className="starBtn"+(t.faved?" faved":"");
+    s.textContent=t.faved?"★":"☆";
+    s.title="優先ネタにする（ファボ）";
+    s.onclick=()=>toggleFav(t,s);
+    acts.appendChild(s);
+  }
+  acts.appendChild(copyBtn(()=>t.text));
   return d;
+}
+async function toggleFav(t,btn){
+  if(!token) return;
+  btn.disabled=true;
+  let raw=t.raw;
+  if(t.faved){
+    raw=raw.replace(/^ファボ:.*\n?/m,"");
+  }else if(/^---\n/.test(raw)){
+    raw=raw.replace(/^---\n/,"---\nファボ: true\n");
+  }else{
+    raw="---\nファボ: true\n---\n\n"+raw;
+  }
+  try{
+    const url=API+t.path.split("/").map(encodeURIComponent).join("/");
+    const r=await fetch(url,{method:"PUT",headers:headers(),
+      body:JSON.stringify({message:(t.faved?"ファボ解除":"ファボ")+"（my-twitter）",
+        branch:BRANCH,content:b64utf8(raw),sha:t.sha})});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    t.sha=j.content.sha; t.raw=raw; t.faved=!t.faved;
+    btn.textContent=t.faved?"★":"☆";
+    btn.classList.toggle("faved",t.faved);
+    if(t.faved) toast("★ 優先ネタにしました");
+  }catch(e){ toast("ファボできませんでした（"+e.message+"）",1); }
+  btn.disabled=false;
 }
 function prependTweet(t){
   const tl=$("timeline"); const n=tl.querySelector(".note"); if(n) n.remove();
@@ -266,7 +305,7 @@ function parseMemo(name,raw){
   if(m){ text=raw.slice(m[0].length);
     const w=m[1].match(/投稿日時:\s*(.+?)(\s*\(JST\))?$/m); if(w) when=w[1].slice(5,16);
   }
-  return {when,text:text.trim()};
+  return {when,text:text.trim(),faved:m?/^ファボ:\s*(true|★)/m.test(m[1]):false};
 }
 async function ghList(path){
   const r=await fetch(API+path.split("/").map(encodeURIComponent).join("/")+"?ref="+BRANCH,{headers:headers()});
@@ -292,7 +331,9 @@ async function showMore(){
     try{
       const r=await fetch(f.url,{headers:headers(true)});
       const raw=await r.text();
-      const el=tweetEl(parseMemo(f.name,raw));
+      const t=parseMemo(f.name,raw);
+      t.path=f.path; t.sha=f.sha; t.raw=raw;
+      const el=tweetEl(t);
       const more=$("loadMore");
       more? tl.insertBefore(el,more) : tl.appendChild(el);
     }catch(e){/* 1件失敗しても続ける */}
