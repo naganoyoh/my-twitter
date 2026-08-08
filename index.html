@@ -89,6 +89,10 @@ main{max-width:600px; margin:0 auto}
 .starBtn{background:none; border:none; font-size:17px; color:#ccd6dd; cursor:pointer;
   padding:0 2px; line-height:1}
 .starBtn.faved{color:#ffad1f}
+.iconBtn{background:none; border:none; font-size:13px; color:var(--sub); cursor:pointer;
+  padding:0 2px; line-height:1}
+#cancelEdit{display:none; background:none; border:none; color:var(--danger);
+  font-size:13px; cursor:pointer; margin-right:auto}
 .postblock .copyBtn{position:absolute; top:8px; right:8px; background:var(--card)}
 #loadMore{display:block; width:100%; padding:14px; background:var(--card); border:none;
   border-top:1px solid var(--border); color:var(--accent); font-size:14px; cursor:pointer}
@@ -140,6 +144,7 @@ main{max-width:600px; margin:0 auto}
   <div id="composer">
     <textarea id="text" placeholder="いまなにしてる？"></textarea>
     <div id="composerBar">
+      <button id="cancelEdit">✕ 編集をやめる</button>
       <span id="charCount"></span>
       <button id="postBtn" disabled>ツイートする</button>
     </div>
@@ -160,7 +165,7 @@ main{max-width:600px; margin:0 auto}
       <button id="closeBtn">とじる</button>
       <button id="saveBtn">保存する</button>
     </div>
-    <p style="font-size:11px;color:var(--sub);text-align:center;margin:14px 0 0">バージョン 2026-08-08 e（ファボ機能）</p>
+    <p style="font-size:11px;color:var(--sub);text-align:center;margin:14px 0 0">バージョン 2026-08-08 f（編集・削除）</p>
   </div>
 </div>
 <div id="toast"></div>
@@ -224,9 +229,11 @@ ta.addEventListener("input",()=>{
   $("postBtn").disabled=!n;
 });
 $("postBtn").onclick=post;
+$("cancelEdit").onclick=cancelEdit;
 async function post(){
   const body=ta.value.trim(); if(!body) return;
   if(!token){ toast("先に⚙️から合鍵を保存してください",1); return; }
+  if(editing){ return updateMemo(body); }
   $("postBtn").disabled=true; $("postBtn").textContent="送信中…";
   const now=jstNow();                              // 2026-08-08 01:17:41
   const ym=now.slice(0,7);                         // 2026-08
@@ -265,9 +272,61 @@ function tweetEl(t){
     s.title="優先ネタにする（ファボ）";
     s.onclick=()=>toggleFav(t,s);
     acts.appendChild(s);
+    const e=document.createElement("button");
+    e.className="iconBtn"; e.textContent="✏️"; e.title="編集";
+    e.onclick=()=>startEdit(t,d);
+    acts.appendChild(e);
+    const x=document.createElement("button");
+    x.className="iconBtn"; x.textContent="🗑"; x.title="削除";
+    x.onclick=()=>delMemo(t,d);
+    acts.appendChild(x);
   }
   acts.appendChild(copyBtn(()=>t.text));
   return d;
+}
+let editing=null;
+function startEdit(t,el){
+  editing={t,el};
+  ta.value=t.text; ta.dispatchEvent(new Event("input"));
+  $("postBtn").textContent="更新する";
+  $("cancelEdit").style.display="inline";
+  window.scrollTo({top:0,behavior:"smooth"}); ta.focus();
+}
+function cancelEdit(){
+  editing=null; ta.value=""; ta.dispatchEvent(new Event("input"));
+  $("postBtn").textContent="ツイートする";
+  $("cancelEdit").style.display="none";
+}
+async function updateMemo(body){
+  const {t,el}=editing;
+  $("postBtn").disabled=true; $("postBtn").textContent="更新中…";
+  const m=t.raw.match(/^---\n[\s\S]*?\n---\n*/);
+  const raw=(m?m[0]:"")+body+"\n";
+  try{
+    const url=API+t.path.split("/").map(encodeURIComponent).join("/");
+    const r=await fetch(url,{method:"PUT",headers:headers(),
+      body:JSON.stringify({message:"ネタメモ編集（my-twitter）",branch:BRANCH,
+        content:b64utf8(raw),sha:t.sha})});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    t.sha=j.content.sha; t.raw=raw; t.text=body;
+    el.querySelector(".text").innerHTML=linkify(body);
+    cancelEdit();
+    toast("更新しました");
+  }catch(e){ toast("更新できませんでした（"+e.message+"）",1); }
+  $("postBtn").textContent=editing?"更新する":"ツイートする";
+  $("postBtn").disabled=!ta.value.trim();
+}
+async function delMemo(t,el){
+  if(!confirm("このメモを削除します。vaultのネタメモからも消えます。よろしいですか？")) return;
+  try{
+    const url=API+t.path.split("/").map(encodeURIComponent).join("/");
+    const r=await fetch(url,{method:"DELETE",headers:headers(),
+      body:JSON.stringify({message:"ネタメモ削除（my-twitter）",branch:BRANCH,sha:t.sha})});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    el.remove();
+    toast("削除しました");
+  }catch(e){ toast("削除できませんでした（"+e.message+"）",1); }
 }
 async function toggleFav(t,btn){
   if(!token) return;
