@@ -54,23 +54,6 @@ main{max-width:600px; margin:0 auto}
 #draftNote{font-size:12px; color:#b7791f; background:#fffbea;
   padding:8px 16px; display:none; border-bottom:1px solid var(--border)}
 
-/* 秘書からの納品 */
-#stockBox{background:var(--card); border-bottom:8px solid var(--bg);
-  box-shadow:0 1px 2px rgba(0,0,0,.04)}
-#stockHead{
-  padding:12px 16px; font-size:13px; color:var(--sub); font-weight:700;
-  display:flex; justify-content:space-between; align-items:center; cursor:pointer;
-}
-#stockHead .chev{color:var(--sub); font-size:12px; font-weight:400}
-#stockBody{padding:0 16px 12px; display:none}
-#stockBody.open{display:block}
-#stockBody h3{font-size:14px; margin:14px 0 4px}
-.postblock{position:relative; background:#f5f8fa; border:1px solid var(--border);
-  border-radius:12px; padding:12px; padding-right:64px; margin:6px 0;
-  white-space:pre-wrap; font-size:14px; overflow-wrap:anywhere}
-.mediaLabel{display:inline-block; font-size:11px; font-weight:700; color:var(--accent);
-  border:1px solid var(--accent); border-radius:999px; padding:1px 10px; margin-top:10px}
-
 /* タイムライン */
 .tweet{padding:12px 16px; background:var(--card); border-bottom:1px solid var(--border);
   display:flex; gap:10px}
@@ -93,7 +76,6 @@ main{max-width:600px; margin:0 auto}
   padding:0 2px; line-height:1}
 #cancelEdit{display:none; background:none; border:none; color:var(--danger);
   font-size:13px; cursor:pointer; margin-right:auto}
-.postblock .copyBtn{position:absolute; top:8px; right:8px; background:var(--card)}
 #loadMore{display:block; width:100%; padding:14px; background:var(--card); border:none;
   border-top:1px solid var(--border); color:var(--accent); font-size:14px; cursor:pointer}
 .note{padding:28px 16px; color:var(--sub); text-align:center; font-size:13px}
@@ -135,12 +117,6 @@ main{max-width:600px; margin:0 auto}
   <button id="gearBtn" title="設定">⚙️</button>
 </header>
 <main>
-  <div id="stockBox">
-    <div id="stockHead">
-      <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:6px"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 7.5l10 6 10-6"/></svg><span id="stockTitle">秘書からの納品</span></span><span class="chev">▼ ひらく</span>
-    </div>
-    <div id="stockBody"></div>
-  </div>
   <div id="composer">
     <textarea id="text" placeholder="いまなにしてる？"></textarea>
     <div id="composerBar">
@@ -165,14 +141,14 @@ main{max-width:600px; margin:0 auto}
       <button id="closeBtn">とじる</button>
       <button id="saveBtn">保存する</button>
     </div>
-    <p style="font-size:11px;color:var(--sub);text-align:center;margin:14px 0 0">バージョン 2026-08-15 h（投函先: 10 Inbox/ネタメモ）</p>
+    <p style="font-size:11px;color:var(--sub);text-align:center;margin:14px 0 0">バージョン 2026-08-15 i（投函専用）</p>
   </div>
 </div>
 <div id="toast"></div>
 
 <script>
 const OWNER="naganoyoh", REPO="secretary", BRANCH="main";
-const MEMO_DIR="10 Inbox/ネタメモ", STOCK_DIR="70 Output/SNSストック";
+const MEMO_DIR="10 Inbox/ネタメモ";
 const API=`https://api.github.com/repos/${OWNER}/${REPO}/contents/`;
 const AVATAR="data:image/png;base64,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";
 const $=id=>document.getElementById(id);
@@ -415,43 +391,6 @@ async function loadTimeline(){
   }
 }
 
-/* ---------- 秘書からの納品（SNSストック最新） ---------- */
-$("stockHead").onclick=()=>{
-  $("stockBody").classList.toggle("open");
-  $("stockHead").querySelector(".chev").textContent=
-    $("stockBody").classList.contains("open")?"▲ とじる":"▼ ひらく";
-};
-function renderStock(md){
-  const box=$("stockBody"); box.innerHTML="";
-  md.split(/```/).forEach((p,i)=>{
-    if(i%2===1){
-      const body=p.replace(/^\n|\n$/g,"");
-      const d=document.createElement("div"); d.className="postblock";
-      d.innerHTML=linkify(body);
-      d.appendChild(copyBtn(()=>body));
-      box.appendChild(d);
-    }else{
-      p.split("\n").forEach(line=>{
-        const h=line.match(/^#{2,3}\s+(.+)/);
-        if(h){const e=document.createElement("h3");e.textContent=h[1];box.appendChild(e);return;}
-        const c=line.match(/^- \[.\]\s+(.+)/);
-        if(c){const e=document.createElement("span");e.className="mediaLabel";e.textContent=c[1];box.appendChild(e);}
-      });
-    }
-  });
-}
-async function loadStock(){
-  try{
-    const arr=(await ghList(STOCK_DIR)).filter(f=>f.type==="file"&&f.name.endsWith(".md"))
-      .sort((a,b)=>b.name.localeCompare(a.name));
-    if(!arr.length){ $("stockTitle").textContent="秘書からの納品（まだありません）"; return; }
-    const latest=arr[0];
-    $("stockTitle").textContent="秘書からの納品："+latest.name.replace(/\.md$/,"");
-    const raw=await (await fetch(latest.url,{headers:headers(true)})).text();
-    renderStock(raw);
-  }catch(e){/* ストック欄は失敗しても本体の邪魔をしない */}
-}
-
 /* ---------- 起動 ---------- */
 function init(){
   const draft=localStorage.getItem("mytw_draft");
@@ -463,7 +402,7 @@ function init(){
     $("timeline").innerHTML='<div class="note">はじめまして。⚙️（右上）から合鍵を保存すると動き出します。</div>';
     return;
   }
-  loadTimeline(); loadStock();
+  loadTimeline();
 }
 init();
 </script>
